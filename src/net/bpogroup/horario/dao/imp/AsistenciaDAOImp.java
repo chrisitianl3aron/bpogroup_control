@@ -26,10 +26,7 @@ public class AsistenciaDAOImp implements AsistenciaDAO {
         List<AsistenciaBean> listaAsistencias = new ArrayList<AsistenciaBean>();
         List<String> lista = Arrays.asList(listaDni.split("\\s*,\\s*"));
 
-        System.out.println(listaAsistencias.size());
-        System.out.println(lista.size());
         if (lista.size() > 0) {
-            System.out.println("ingrese a jecutar el query");
             StringBuilder cadena = new StringBuilder();
             cadena.append("SELECT u.nombres, u.apellidos, h.dni, DATE_FORMAT(h.ini_jornada,'%Y-%m-%d') as dia, ");
             cadena.append("DATE_FORMAT(h.ini_jornada,'%H:%i') as inidia, DATE_FORMAT( h.fin_jornada,'%H:%i') as findia, ");
@@ -45,7 +42,6 @@ public class AsistenciaDAOImp implements AsistenciaDAO {
             }
             cadena.append(") ");
             cadena.append("ORDER BY h.ini_jornada ");
-            System.out.println("yo soy el queyr");
 
             Connection cn = ConexionBD.getInstance().obtenerConexion();
             PreparedStatement ps = cn.prepareStatement(cadena.toString());
@@ -53,7 +49,6 @@ public class AsistenciaDAOImp implements AsistenciaDAO {
             ps.setDate(1, sql);
             java.sql.Date sql2 = new java.sql.Date(tf.getTime());
             ps.setDate(2, sql2);
-            System.out.println(ps);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -66,7 +61,6 @@ public class AsistenciaDAOImp implements AsistenciaDAO {
                         rs.getString("findia"));
                 listaAsistencias.add(asistenciaBean);
             }
-            System.out.println("el tamaño de la asistecia es : " + listaAsistencias.size());
         }
         return listaAsistencias;
     }
@@ -74,41 +68,41 @@ public class AsistenciaDAOImp implements AsistenciaDAO {
     @Override
     public void saveAsistencia(String ids, String vals) {
         Logger logger = Logger.getLogger(this.getClass());
+        if(ids.length()>6 && vals.length()>3) {
+            List<String> lId = Arrays.asList(ids.split("\\s*,\\s*"));
+            List<String> lVal = Arrays.asList(vals.split("\\s*,\\s*"));
 
-        List<String> lId = Arrays.asList(ids.split("\\s*,\\s*"));
-        List<String> lVal = Arrays.asList(vals.split("\\s*,\\s*"));
+            Connection cn = null;
+            try {
+                cn = ConexionBD.getInstance().obtenerConexion();
+                cn.setAutoCommit(false);
 
-        Connection cn = null;
-        try {
-            cn = ConexionBD.getInstance().obtenerConexion();
-            cn.setAutoCommit(false);
-
-            for (int i = 0; i < lId.size(); i++) {
-                PreparedStatement ps;
-                if (lId.get(i).substring(18).equals("1")) {
-                    ps = cn.prepareStatement("UPDATE bh_horario SET ini_jornada=? WHERE dni=? AND dia=?");
-                } else if (lId.get(i).substring(18).equals("2")) {
-                    ps = cn.prepareStatement("UPDATE bh_horario SET ini_break=? WHERE dni=? AND dia=?");
-                } else if (lId.get(i).substring(18).equals("3")) {
-                    ps = cn.prepareStatement("UPDATE bh_horario SET fin_break=? WHERE dni=? AND dia=?");
-                } else {
-                    ps = cn.prepareStatement("UPDATE bh_horario SET fin_jornada=? WHERE dni=? AND dia=?");
+                for (int i = 0; i < lId.size(); i++) {
+                    PreparedStatement ps;
+                    if (lId.get(i).substring(18).equals("1")) {
+                        ps = cn.prepareStatement("UPDATE bh_horario SET ini_jornada=? WHERE dni=? AND dia=?");
+                    } else if (lId.get(i).substring(18).equals("2")) {
+                        ps = cn.prepareStatement("UPDATE bh_horario SET ini_break=? WHERE dni=? AND dia=?");
+                    } else if (lId.get(i).substring(18).equals("3")) {
+                        ps = cn.prepareStatement("UPDATE bh_horario SET fin_break=? WHERE dni=? AND dia=?");
+                    } else {
+                        ps = cn.prepareStatement("UPDATE bh_horario SET fin_jornada=? WHERE dni=? AND dia=?");
+                    }
+                    ps.setString(1, lId.get(i).substring(8, 18) + " " + lVal.get(i));
+                    ps.setString(2, lId.get(i).substring(0, 8));
+                    ps.setString(3, lId.get(i).substring(8, 18));
+                    ps.execute();
                 }
-                ps.setString(1, lId.get(i).substring(8, 18) + " " + lVal.get(i));
-                ps.setString(2, lId.get(i).substring(0, 8));
-                ps.setString(3, lId.get(i).substring(8, 18));
-                ps.execute();
+                cn.commit();
+                cn.close();
+            } catch (
+                    Exception e
+                    )
+
+            {
+                logger.error(e.toString().replace("\'", ""), e);
             }
-            cn.commit();
-            cn.close();
-        } catch (
-                Exception e
-                )
-
-        {
-            logger.error(e.toString().replace("\'", ""), e);
         }
-
 
     }
 }

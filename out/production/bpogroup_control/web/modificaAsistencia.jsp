@@ -35,10 +35,10 @@
 
         .input-group {
             width: 110px;
-            margin-bottom: 10px;
             height: 34px;
         }
-        input[type="text"]{
+
+        input[type="text"] {
             height: 34px;
         }
 
@@ -58,7 +58,50 @@
                 float: right;
             }
         }
-        tr:hover { background: #FCF; }
+
+        tr:hover {
+            background: #FCF;
+        }
+
+        .tab-mod-asistencia {
+            width: 1000px;
+            font-family: "Trebuchet MS", Helvetica, sans-serif;
+
+        }
+
+        .tab-mod-asistencia tr {
+            height: 44px;
+        }
+
+        .tab-mod-asistencia input[type="date"] {
+            width: 150px;
+            height: 34px;
+        }
+
+        thead tr {
+            background-color: #85B4EA;
+        }
+
+        .td-large {
+            text-align: center;
+            width: 280px
+        }
+
+        .td-med {
+            text-align: center;
+            width: 200px
+        }
+
+        .td-med input[type="date"] {
+            margin: auto;
+        }
+
+        .td-small {
+            text-align: center;
+            width: 130px
+        }
+
+
     </style>
 
     <script type="text/javascript">
@@ -76,7 +119,7 @@
             }
 
             $('#btnShow').click(function () {
-                alert($("#sltPersonal").chosen().val());
+                //alert($("#sltPersonal").chosen().val());
                 $.ajax({
                     type: 'GET',
                     url: 'MantenimientoServlet',
@@ -88,15 +131,40 @@
                     },
                     success: function (dados) {
                         $('#vista').html(dados);
+                        $('#btnSave').show();
                     }
                 });
             });
+
+            $('#btnSave').click(function () {
+
+                //alert(ids);
+                //alert(vals);
+
+                $.ajax({
+                    type: 'GET',
+                    url: 'MantenimientoServlet',
+                    data: {
+                        act: 'saveCha',
+                        ids: ids.toString(),
+                        vals: vals.toString()
+                    },
+                    success: function () {
+                        alert("Se guardaron los cambios");
+                    }
+                });
+
+                ids = [];
+                vals = [];
+
+            });
+
 
         });
     </script>
 
     <script src="js/clockpicker/js/html5shiv.js"></script>
-    <script src="js/clockpickerjs/respond.min.js"></script>
+    <script src="js/clockpicker/js/respond.min.js"></script>
 
 
     <%
@@ -106,6 +174,52 @@
             return;
         }
     %>
+
+    <style>
+        .mod-asi-container {
+            display: block;
+            margin: auto;
+            width: 700px;
+            padding: 15px;
+            background-color: #dddddd;
+
+        }
+
+        .mod-asi-container input[type="date"] {
+            width: 150px;
+        }
+
+        .mod-asi-container button[type="button"] {
+            margin-left: 100px;
+            width: 120px;
+        }
+
+        .mod-asi-container label {
+            width: 200px;
+        }
+
+        label, input, button {
+            height: 34px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            text-align: left;
+            line-height: 34px;
+            width: 200px;
+            float: left;
+            padding-right: 20px;
+        }
+
+        br {
+            clear: left;
+        }
+
+        #btnSave {
+            display: none;
+        }
+
+    </style>
 </head>
 <body>
 
@@ -115,15 +229,18 @@
     Date today = new Date();
 %>
 
-<div id="divModAsistencia">
 
+<br/>
+
+<div class="mod-asi-container">
     <label for="timeIni">Fecha Inicio :</label>
     <input type="date" name="timeIni" id="timeIni" value="<%= dateFormat.format(today) %>" min="2014-11-01"/>
+    <button type='button' id="btnShow">Ver Registros</button>
+    <br/>
     <label for="timeFin">Fecha Fin :</label>
     <input type="date" name="timeFin" id="timeFin" value="<%= dateFormat.format(today) %>" min="2014-11-01"/>
-    <button type='button' id="btnShow">Ver Registros</button>
     <button type='button' id="btnSave">Grabar</button>
-
+    <br/>
 
 
     <div class="side-by-side clearfix">
@@ -151,7 +268,7 @@
 </div>
 
 
-<div id="vista" style="background-color: #dddddd;width: 1000px;margin: 100px auto"></div>
+<div id="vista" style="background-color: #dddddd;width: 1000px;margin: 50px auto"></div>
 
 </body>
 </html>

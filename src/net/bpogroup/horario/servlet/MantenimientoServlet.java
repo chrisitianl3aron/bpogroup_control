@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.ParseException;
@@ -61,24 +62,27 @@ public class MantenimientoServlet extends HttpServlet {
                 MantenimientoService mantenimientoService = new MantenimientoServiceImp();
                 List<AsistenciaBean> la = mantenimientoService.getAsistenciasPorUsuarios(ti, tf, listaDni);
                 if (la.size() > 0) {
-                    out.println("<table style=\"border: 1px solid black\">");
-                    out.println("<tr style=\"background-color:#85B4EA \">");
-                    out.println("<th>Nombres y apellidos</th>");
-                    out.println("<th>dia</th>");
-                    out.println("<th>Inicio</th>");
-                    out.println("<th>Inicio Break</th>");
-                    out.println("<th>Finalizo Break</th>");
-                    out.println("<th>Fin</th>");
+                    out.println("<table class=\"tab-mod-asistencia\">");
+                    out.println("<thead>");
+                    out.println("<tr>");
+                    out.println("<td class=\"td-large\">Nombres y apellidos</th>");
+                    out.println("<td class=\"td-med\">dia</th>");
+                    out.println("<td class=\"td-small\">Inicio</th>");
+                    out.println("<td class=\"td-small\">Inicio Break</th>");
+                    out.println("<td class=\"td-small\">Finalizo Break</th>");
+                    out.println("<td class=\"td-small\">Fin</th>");
                     out.println("</tr>");
+                    out.println("</thead>");
+
                 }
                 for (int i = 0; i < la.size(); i++) {
                     out.println("<tr>");
-                    out.println("<td>" + la.get(i).getUsuarioBean().getNombres() + " " + la.get(i).getUsuarioBean().getApellidos() + "</td>");
-                    out.println("<td><input type=\"date\" value=\"" + la.get(i).getDia() + "\" min=\"2014-11-01\" disabled=\"\"></td>");
-                    out.println("<td><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "1\" class=\"form-control\" value=\"" + la.get(i).getIniDia() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
-                    out.println("<td><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "2\" class=\"form-control\" value=\"" + la.get(i).getIniBreak() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
-                    out.println("<td><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "3\" class=\"form-control\" value=\"" + la.get(i).getFinBreak() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
-                    out.println("<td><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "4\" class=\"form-control\" value=\"" + la.get(i).getFinDia() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
+                    out.println("<td class=\"td-large\">" + la.get(i).getUsuarioBean().getNombres() + " " + la.get(i).getUsuarioBean().getApellidos() + "</td>");
+                    out.println("<td class=\"td-med\"><input type=\"date\" value=\"" + la.get(i).getDia() + "\" min=\"2014-11-01\" disabled=\"\"></td>");
+                    out.println("<td class=\"td-small\"><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "1\" class=\"form-control\" value=\"" + la.get(i).getIniDia() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
+                    out.println("<td class=\"td-small\"><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "2\" class=\"form-control\" value=\"" + la.get(i).getIniBreak() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
+                    out.println("<td class=\"td-small\"><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "3\" class=\"form-control\" value=\"" + la.get(i).getFinBreak() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
+                    out.println("<td class=\"td-small\"><div class=\"input-group clockpicker pull-center\" data-placement=\"left\" data-align=\"top\" data-autoclose=\"true\"><input type=\"text\" id=\"" + la.get(i).getUsuarioBean().getDni() + la.get(i).getDia() + "4\" class=\"form-control\" value=\"" + la.get(i).getFinDia() + "\"><span class=\"input-group-addon\"><span class=\"glyphicon glyphicon-time\"></span></span></div></td>");
                     out.println("</tr>");
                 }
                 out.println("</table>");
@@ -93,6 +97,9 @@ public class MantenimientoServlet extends HttpServlet {
                 String vals = request.getParameter("vals");
                 MantenimientoService mantenimientoService = new MantenimientoServiceImp();
                 mantenimientoService.saveAsistencia(dnis, vals);
+                HttpSession miSesion = request.getSession();
+                UsuarioBean usuarioBean = (UsuarioBean)miSesion.getAttribute("usuario");
+                logger.info(usuarioBean.getDni() + " esta actualizando " +dnis+" "+vals);
             } catch (Exception e) {
                 logger.error(e.toString().replace("\'", ""), e);
             }
